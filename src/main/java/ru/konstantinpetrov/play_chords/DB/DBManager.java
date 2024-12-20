@@ -1,5 +1,7 @@
 package ru.konstantinpetrov.play_chords.DB;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import ru.konstantinpetrov.play_chords.entity.*;
 import ru.konstantinpetrov.play_chords.util.GostEncryptionUtil;
@@ -30,6 +32,7 @@ public class DBManager {
 		}
 	}
 
+	// Сохранение пользователей не кэшируем, но после добавления данных можно очистить релевантный кэш, если он есть
 	public void addUser(Users user) {
 		final String SQL="INSERT INTO Users(id, login, password, mail) VALUES (?,?,?,?)";
 		try (PreparedStatement statement=connection.prepareStatement(SQL)) {
@@ -43,17 +46,16 @@ public class DBManager {
 		}
 	}
 
-	// Пример с шифрованием поля text для сущности Comments.
+	@CacheEvict(value = "comments", key = "#comment.songsId")
 	public void saveComment(Comments comment) {
 		final String SQL="INSERT INTO Comments(id, text, date, Songsid, Usersid) VALUES (?,?,?,?,?)";
 		try (PreparedStatement statement=connection.prepareStatement(SQL)) {
-			// Шифрование текста комментария перед сохранением
 			String originalText = comment.getText();
 			String encryptedText = gostEncryptionUtil.encrypt(originalText);
 			comment.setText(encryptedText);
 
 			statement.setInt(1, comment.getId());
-			statement.setString(2, comment.getText()); // зашифрованный текст
+			statement.setString(2, comment.getText());
 			statement.setObject(3, comment.getDate());
 			statement.setInt(4, comment.getSongsId());
 			statement.setInt(5, comment.getUsersId());
@@ -63,6 +65,7 @@ public class DBManager {
 		}
 	}
 
+	@Cacheable(value = "comments", key = "#songId")
 	public List<Comments> getCommentsBySongId(Integer songId) {
 		List<Comments> listComments=new ArrayList<>();
 		final String SQL="SELECT * FROM Comments WHERE Songsid = ?";
@@ -72,7 +75,6 @@ public class DBManager {
 
 			while(resultSet.next()) {
 				String encryptedText = resultSet.getString("text");
-				// Расшифровка текста после получения из БД
 				String decryptedText = gostEncryptionUtil.decrypt(encryptedText);
 
 				Comments comment=new Comments(
@@ -177,11 +179,11 @@ public class DBManager {
 			ResultSet resultSet=statement.executeQuery();
 
 			while(resultSet.next()) {
-				Favorites fav=new Favorites(
+				Favorites fv=new Favorites(
 						resultSet.getInt("Usersid"),
 						resultSet.getInt("Songsid")
 				);
-				listFavorites.add(fav);
+				listFavorites.add(fv);
 			}
 			return listFavorites;
 		} catch (SQLException e) {
@@ -288,6 +290,7 @@ public class DBManager {
 		}
 	}
 
+	@CacheEvict(value = "songs", key = "#songs.name")
 	public void saveSongs(Songs songs) {
 		final String SQL="INSERT INTO Songs(id, gener, name, musician, text, level_id, visitors_count) VALUES (?,?,?,?,?,?,?)";
 		try (PreparedStatement statement=connection.prepareStatement(SQL)) {
@@ -304,6 +307,7 @@ public class DBManager {
 		}
 	}
 
+	@Cacheable(value = "songs", key = "#name")
 	public List<Songs> getSongsByName(String name) {
 		List<Songs> listSongs=new ArrayList<>();
 		final String SQL="SELECT * FROM Songs WHERE name = ?";
@@ -344,6 +348,7 @@ public class DBManager {
 		}
 	}
 
+	@Cacheable(value = "singers", key = "#name")
 	public List<Singers> getSingersByName(String name) {
 		List<Singers> listSingers=new ArrayList<>();
 		final String SQL="SELECT * FROM Singers WHERE name = ?";

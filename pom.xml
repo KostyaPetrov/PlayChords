@@ -75,7 +75,17 @@
 			<artifactId>HikariCP</artifactId>
 			<version>6.2.1</version>
 		</dependency>
+		<!-- Кэширование в Spring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
 
+		<!-- Redis -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
