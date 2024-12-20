@@ -21,7 +21,12 @@ import ru.konstantinpetrov.play_chords.entity.*;
 
 @RestController
 public class DataController {
-	DBManager dbManager=new DBManager();
+
+	private final DBManager dbManager;
+
+	public DataController(DBManager dbManager) {
+		this.dbManager = dbManager;
+	}
 
 	
 	@PostMapping(path="/save_comment/{comment}")
