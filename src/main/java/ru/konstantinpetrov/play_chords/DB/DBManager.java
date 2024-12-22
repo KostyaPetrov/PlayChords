@@ -3,6 +3,8 @@ package ru.konstantinpetrov.play_chords.DB;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
+
+import lombok.extern.slf4j.Slf4j;
 import ru.konstantinpetrov.play_chords.entity.*;
 import ru.konstantinpetrov.play_chords.util.GostEncryptionUtil;
 
@@ -12,6 +14,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Slf4j
 @Repository
 public class DBManager {
 	private final DataSource dataSource;
@@ -27,7 +31,9 @@ public class DBManager {
 	public void init() {
 		try {
 			this.connection = dataSource.getConnection();
+			log.info("Сonnection established");
 		} catch (SQLException e) {
+			log.error("Some problem with establish connection", e);
 			e.printStackTrace();
 		}
 	}
@@ -41,7 +47,9 @@ public class DBManager {
 			statement.setString(3, user.getPassword());
 			statement.setString(4, user.getMail());
 			statement.executeUpdate();
+			log.info("User added", user);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -60,7 +68,9 @@ public class DBManager {
 			statement.setInt(4, comment.getSongsId());
 			statement.setInt(5, comment.getUsersId());
 			statement.executeUpdate();
+			log.info("Comment added", comment);
 		} catch (Exception e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -86,9 +96,10 @@ public class DBManager {
 				);
 				listComments.add(comment);
 			}
-
+			log.info("Comments finded", listComments);
 			return listComments;
 		} catch (Exception e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -101,7 +112,9 @@ public class DBManager {
 			statement.setString(2, mark.getReaction());
 			statement.setInt(3, mark.getSongsId());
 			statement.executeUpdate();
+			log.info("Mark added", mark);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -121,8 +134,10 @@ public class DBManager {
 				);
 				listMarks.add(mark);
 			}
+			log.info("Marks finded", listMarks);
 			return listMarks;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -134,7 +149,9 @@ public class DBManager {
 			statement.setInt(1, hist.getUsersId());
 			statement.setInt(2, hist.getSongsId());
 			statement.executeUpdate();
+			log.info("History record added", hist);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -153,8 +170,10 @@ public class DBManager {
 				);
 				listHistory.add(hist);
 			}
+			log.info("History finded", listHistory);
 			return listHistory;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -166,7 +185,9 @@ public class DBManager {
 			statement.setInt(1, fav.getUsersId());
 			statement.setInt(2, fav.getSongsId());
 			statement.executeUpdate();
+			log.info("Favorites songs added", fav);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -185,8 +206,10 @@ public class DBManager {
 				);
 				listFavorites.add(fv);
 			}
+			log.info("Favorites songs finded", listFavorites);
 			return listFavorites;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -198,7 +221,9 @@ public class DBManager {
 			statement.setInt(1, folderSong.getFoldersId());
 			statement.setInt(2, folderSong.getSongsId());
 			statement.executeUpdate();
+			log.info("FoldersSongs added", folderSong);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -217,8 +242,10 @@ public class DBManager {
 				);
 				listFoldersSongs.add(folder);
 			}
+			log.info("Folders songs finded", listFoldersSongs);
 			return listFoldersSongs;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -230,7 +257,9 @@ public class DBManager {
 			statement.setInt(1, tagsSongs.getTagsId());
 			statement.setInt(2, tagsSongs.getSongsId());
 			statement.executeUpdate();
+			log.info("TagsSongs finded", tagsSongs);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -241,7 +270,6 @@ public class DBManager {
 		try (PreparedStatement statement=connection.prepareStatement(SQL)) {
 			statement.setInt(1, songsId);
 			ResultSet resultSet=statement.executeQuery();
-
 			while(resultSet.next()) {
 				TagsSongs ts=new TagsSongs(
 						resultSet.getInt("Tagsid"),
@@ -249,8 +277,10 @@ public class DBManager {
 				);
 				listTagsSongs.add(ts);
 			}
+			log.info("Tags Songs finded", listTagsSongs);
 			return listTagsSongs;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -263,7 +293,9 @@ public class DBManager {
 			statement.setInt(2, songsSingers.getSingersId());
 			statement.setString(3, songsSingers.getLinkToVideo());
 			statement.executeUpdate();
+			log.info("Songs Singers save", songsSingers);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -283,8 +315,10 @@ public class DBManager {
 				);
 				listSongsSingers.add(ss);
 			}
+			log.info("Songs Singers finded", listSongsSingers);
 			return listSongsSingers;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -302,7 +336,9 @@ public class DBManager {
 			statement.setInt(6, songs.getLevelId());
 			statement.setInt(7, songs.getVisitorsCount());
 			statement.executeUpdate();
+			log.info("Songs save", songs);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -327,9 +363,10 @@ public class DBManager {
 				);
 				listSongs.add(s);
 			}
-
+			log.info("Songs find", listSongs);
 			return listSongs;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -343,7 +380,9 @@ public class DBManager {
 			statement.setByte(3, singers.getGender());
 			statement.setString(4, singers.getText());
 			statement.executeUpdate();
+			log.info("Singers save", singers);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -365,9 +404,10 @@ public class DBManager {
 				);
 				listSingers.add(sg);
 			}
-
+			log.info("Singers find", listSingers);
 			return listSingers;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -380,7 +420,9 @@ public class DBManager {
 			statement.setString(2, level.getLevelName());
 			statement.setString(3, level.getInfo());
 			statement.executeUpdate();
+			log.info("Level save", level);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -400,9 +442,10 @@ public class DBManager {
 				);
 				listLevels.add(lvl);
 			}
-
+			log.info("Levels find", listLevels);
 			return listLevels;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -414,7 +457,9 @@ public class DBManager {
 			statement.setInt(1, tag.getId());
 			statement.setString(2, tag.getName());
 			statement.executeUpdate();
+			log.info("Tags save", tag);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -433,9 +478,10 @@ public class DBManager {
 				);
 				listTags.add(tg);
 			}
-
+			log.info("Tags find", listTags);
 			return listTags;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
@@ -448,7 +494,9 @@ public class DBManager {
 			statement.setString(2, folder.getName());
 			statement.setInt(3, folder.getUserId());
 			statement.executeUpdate();
+			log.info("Folders save", folder);
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 		}
 	}
@@ -468,9 +516,10 @@ public class DBManager {
 				);
 				listFolders.add(f);
 			}
-
+			log.info("Folders find", listFolders);
 			return listFolders;
 		} catch (SQLException e) {
+			log.error("Error work with data base", e);
 			e.printStackTrace();
 			return null;
 		}
